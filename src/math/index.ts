@@ -120,7 +120,7 @@ export const math = {
       if (s1str.indexOf('e') > -1) {
         s1str = s1str.substring(0, s1str.indexOf('e'));
       }
-      r1 = s1str.length;
+      t1 = s1str.length;
     } catch (e) {
       // empty
     }
@@ -129,7 +129,7 @@ export const math = {
       if (s2str.indexOf('e') > -1) {
         s2str = s2str.substring(0, s2str.indexOf('e'));
       }
-      r2 = s2str.length;
+      t2 = s2str.length;
     } catch (e) {
       // empty
     }
@@ -137,7 +137,7 @@ export const math = {
     r1 = Number(arg1.toString().replace('.', ''));
     r2 = Number(arg2.toString().replace('.', ''));
     const res0 = r1 / r2;
-    return this.mul(res0, Math.pow(LN, r2 - r1).toFixed(Math.abs(t2 - t1)));
+    return this.mul(res0, Math.pow(LN, t2 - t1).toFixed(Math.abs(t2 - t1)));
 
   },
   round(value: number, precision: number = 0): number {

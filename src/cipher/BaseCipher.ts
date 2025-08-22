@@ -27,7 +27,7 @@ export abstract class BaseCipher {
   protected abstract encryptByKey(plain: string, key: Buffer): string;
   protected abstract decryptByKey(encrypted: string, key: Buffer): string;
 
-  private readWorkKey(): Buffer {
+  protected readWorkKey(): Buffer {
     const workKeyPath = path.join(this.keyPath, CipherConstant.WORKKEY_NAME);
 
     const rootKeyPath = path.join(this.keyPath, CipherConstant.ROOTKEY_NAME);
@@ -41,14 +41,14 @@ export abstract class BaseCipher {
 
     let workKey: Buffer;
     if (fs.existsSync(workKeyPath)) {
-      return fs.readFileSync(workKeyPath);
+      workKey = fs.readFileSync(workKeyPath);
     } else {
       workKey = this.generateWorkKey(workKeyPath, rootKey);
     }
 
-    const workKeystr = this.decryptByKey(workKey.toString(CipherConstant.HEX_ENCODING), rootKey);
+    const workKeyStr = this.decryptByKey(workKey.toString(CipherConstant.HEX_ENCODING), rootKey);
 
-    return Buffer.from(workKeystr, CipherConstant.HEX_ENCODING);
+    return Buffer.from(workKeyStr, CipherConstant.HEX_ENCODING);
   }
 
   protected generateIV(): Buffer {
@@ -56,17 +56,17 @@ export abstract class BaseCipher {
   }
 
   protected generateRootKey(keyPath: string): Buffer {
-    const oirgK = nanoid(this.keyLength);
+    const origK = nanoid(this.keyLength);
     const salt = this.genIv();
-    const rootKey = scryptSync(oirgK, salt, this.keyLength);
+    const rootKey = scryptSync(origK, salt, this.keyLength);
     fs.writeFileSync(keyPath, rootKey, { mode: 0o400 });
     return rootKey;
   }
 
   protected generateWorkKey(keyPath: string, rootKey: Buffer): Buffer {
-    const oirgK = nanoid(this.keyLength);
+    const origK = nanoid(this.keyLength);
     const salt = this.genIv();
-    const workKey = scryptSync(oirgK, salt, this.keyLength);
+    const workKey = scryptSync(origK, salt, this.keyLength);
     const encryptedWorkKey = this.encryptByKey(workKey.toString(CipherConstant.HEX_ENCODING), rootKey);
     fs.writeFileSync(keyPath, Buffer.from(encryptedWorkKey, CipherConstant.HEX_ENCODING), { mode: 0o400 });
     return workKey;
